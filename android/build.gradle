@@ -420,7 +420,7 @@ android {
         }
     }
     defaultConfig {
-        minSdkVersion safeExtGet("minSdkVersion", 16)
+        minSdkVersion safeExtGet("minSdkVersion", 21)
         targetSdkVersion safeExtGet("targetSdkVersion", 30)
         versionCode 1
         versionName "1.0"
@@ -1059,9 +1059,9 @@ dependencies {
     implementation "androidx.core:core:1.6.0"
 
     if (REACT_NATIVE_MINOR_VERSION >= 71) {
-        implementation "com.facebook.react:react-android" // version substituted by RNGP
+        implementation "com.facebook.react:react-android:+" // version substituted by RNGP
         if (JS_RUNTIME == "hermes") {
-            implementation "com.facebook.react:hermes-android" // version substituted by RNGP
+            implementation "com.facebook.react:hermes-android:+" // version substituted by RNGP
         }
     } else {
         implementation "com.facebook.react:react-native:+" // From node_modules

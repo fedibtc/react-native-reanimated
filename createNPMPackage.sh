@@ -1,11 +1,44 @@
 #!/bin/bash
+set -e
+set -x
 
-yarn install --frozen-lockfile
-yarn bob build
-if [ "$1" = "nightly" ];
-then
-  node scripts/set-nightly-version.js
-fi
-npm pack
+ROOT=$(pwd)
+
+unset CI
+
+versions=("0.72")
+version_name=("72")
+
+for index in {0..4}
+do
+  yarn add react-native@"${versions[$index]}" --dev
+  for for_hermes in "True" "False"
+  do
+    engine="jsc"
+    if [ "$for_hermes" == "True" ]; then
+      engine="hermes"
+    fi
+    echo "engine=${engine}"
+
+    cd android
+    ./gradlew clean
+
+    CLIENT_SIDE_BUILD="False" JS_RUNTIME=${engine} REANIMATED_PACKAGE_BUILD="1" ./gradlew :assembleDebug --no-build-cache --rerun-tasks
+
+    cd $ROOT
+
+    rm -rf android/react-native-reanimated-"${version_name[$index]}-${engine}".aar
+    cp android/build/outputs/aar/*.aar android/react-native-reanimated-"${version_name[$index]}-${engine}".aar
+  done
+done
+
+git restore yarn.lock package.json
+rm -rf node_modules
+yarn
+
+cp -R android/build build_output
+cd android && REANIMATED_PACKAGE_BUILD="1" ./gradlew clean && cd ..
+
+rm -rf ./lib
 
 echo "Done!"
